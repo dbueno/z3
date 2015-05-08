@@ -1223,6 +1223,8 @@ class BoolSortRef(SortRef):
         """
         if isinstance(val, bool):
             return BoolVal(val, self.ctx)
+        elif is_int(val):
+            return If(val == 0, BoolVal(False), BoolVal(True))
         if __debug__:
             _z3_assert(is_expr(val), "True, False or Z3 Boolean expression expected")
             _z3_assert(self.eq(val.sort()), "Value cannot be converted into a Z3 Boolean value")
