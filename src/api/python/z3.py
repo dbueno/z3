@@ -1900,6 +1900,11 @@ class ArithSortRef(SortRef):
             val_s = val.sort()
             if self.eq(val_s):
                 return val
+            if val_s.name() == 'Bool':
+                if self.is_int():
+                    return If(val, 1, 0)
+                if self.is_real():
+                    return ToReal(If(val, 1, 0))
             if val_s.is_int() and self.is_real():
                 return ToReal(val)
             if __debug__:
