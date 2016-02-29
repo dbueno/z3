@@ -27,6 +27,7 @@ Notes:
 #include<sstream>
 #include<z3.h>
 #include<limits.h>
+#include<vector>
 
 /**
    \defgroup cppapi C++ API
@@ -1301,6 +1302,17 @@ namespace z3 {
         }
         check_result check(expr_vector assumptions) { 
             unsigned n = assumptions.size();
+            array<Z3_ast> _assumptions(n);
+            for (unsigned i = 0; i < n; i++) {
+                check_context(*this, assumptions[i]);
+                _assumptions[i] = assumptions[i];
+            }
+            Z3_lbool r = Z3_solver_check_assumptions(ctx(), m_solver, n, _assumptions.ptr()); 
+            check_error(); 
+            return to_check_result(r); 
+        }
+        check_result check(std::vector<expr> assumptions) { 
+            unsigned n = (unsigned)assumptions.size();
             array<Z3_ast> _assumptions(n);
             for (unsigned i = 0; i < n; i++) {
                 check_context(*this, assumptions[i]);
