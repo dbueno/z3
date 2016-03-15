@@ -974,6 +974,21 @@ namespace z3 {
     inline expr operator*(expr const & a, int b) { return a * a.ctx().num_val(b, a.get_sort()); }
     inline expr operator*(int a, expr const & b) { return b.ctx().num_val(a, b.get_sort()) * b; }
 
+    inline expr operator%(expr const & a, expr const & b) {
+      check_context(a, b);
+      Z3_ast r = 0;
+      if (a.is_arith() && b.is_arith()) {
+        r = Z3_mk_mod(a.ctx(), a, b);
+      } else {
+        assert(false);
+      }
+      a.check_error();
+      return expr(a.ctx(), r);
+    }
+    inline expr operator%(expr const & a, int b) { return a % a.ctx().num_val(b, a.get_sort()); }
+    inline expr operator%(int a, expr const & b) { return b.ctx().num_val(a, b.get_sort()) % b; }
+
+
 
     inline expr operator>=(expr const & a, expr const & b) {
         check_context(a, b);
