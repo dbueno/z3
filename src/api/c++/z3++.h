@@ -1483,6 +1483,21 @@ namespace z3 {
             return func_interp(ctx(), r);
         }
 
+        func_interp get_func_interp_of_array(expr const & e) const {
+          check_context(*this, e);
+          expr me = eval(e);
+          func_decl d = me.decl();
+          Z3_func_decl some_array_1_eval_func_decl = d.operator _Z3_func_decl *();
+          assert(Z3_get_decl_kind(ctx(), some_array_1_eval_func_decl) == Z3_OP_AS_ARRAY);
+          assert(e.is_app());
+          assert(Z3_get_decl_num_parameters(ctx(), some_array_1_eval_func_decl) == 1);
+          assert(Z3_get_decl_parameter_kind(ctx(), some_array_1_eval_func_decl, 0) == 
+                 Z3_PARAMETER_FUNC_DECL);
+          func_decl model_fd = func_decl(ctx(), 
+                             Z3_get_decl_func_decl_parameter(ctx(), some_array_1_eval_func_decl, 0));
+          return get_func_interp(model_fd);
+        }
+
         friend std::ostream & operator<<(std::ostream & out, model const & m);
     };
     inline std::ostream & operator<<(std::ostream & out, model const & m) { out << Z3_model_to_string(m.ctx(), m); return out; }
