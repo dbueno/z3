@@ -1616,6 +1616,18 @@ namespace z3 {
             check_error(); 
             return to_check_result(r); 
         }
+        template<typename expr_it>
+        check_result check(unsigned n, expr_it assumps_begin, expr_it assumps_end) {
+            array<Z3_ast> _assumptions(n);
+            unsigned i = 0;
+            for (; assumps_begin != assumps_end; ++assumps_begin) {
+                check_context(*this, *assumps_begin);
+                _assumptions[i++] = *assumps_begin;
+            }
+            Z3_lbool r = Z3_solver_check_assumptions(ctx(), m_solver, n, _assumptions.ptr());
+            check_error();
+            return to_check_result(r);
+        }
         model get_model() const { Z3_model m = Z3_solver_get_model(ctx(), m_solver); check_error(); return model(ctx(), m); }
         std::string reason_unknown() const { Z3_string r = Z3_solver_get_reason_unknown(ctx(), m_solver); check_error(); return r; }
         stats statistics() const { Z3_stats r = Z3_solver_get_statistics(ctx(), m_solver); check_error(); return stats(ctx(), r); }
