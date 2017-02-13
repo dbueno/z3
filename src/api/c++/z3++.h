@@ -790,7 +790,7 @@ namespace z3 {
         friend expr operator|(int a, expr const & b);
 
         friend expr operator~(expr const & a);
-        expr extract(unsigned hi, unsigned lo) const { Z3_ast r = Z3_mk_extract(ctx(), hi, lo, *this); ctx().check_error(); return expr(ctx(), r); }        
+        expr extract(unsigned hi, unsigned lo) const { Z3_ast r = Z3_mk_extract(ctx(), hi, lo, *this); ctx().check_error(); return expr(ctx(), r); }
         expr zeroext(unsigned width) const { Z3_ast r = Z3_mk_zero_ext(ctx(), width, *this); ctx().check_error(); return expr(ctx(), r); }
         unsigned lo() const { assert (is_app() && Z3_get_decl_num_parameters(ctx(), decl()) == 2); return static_cast<unsigned>(Z3_get_decl_int_parameter(ctx(), decl(), 1)); }
         unsigned hi() const { assert (is_app() && Z3_get_decl_num_parameters(ctx(), decl()) == 2); return static_cast<unsigned>(Z3_get_decl_int_parameter(ctx(), decl(), 0)); }
@@ -980,14 +980,29 @@ namespace z3 {
       Z3_ast r = 0;
       if (a.is_arith() && b.is_arith()) {
         r = Z3_mk_mod(a.ctx(), a, b);
-      } else {
-        assert(false);
+      } else if (a.is_bv() && b.is_bv()) {
+        r = Z3_mk_bvsmod(a.ctx(), a, b);
       }
       a.check_error();
       return expr(a.ctx(), r);
     }
     inline expr operator%(expr const & a, int b) { return a % a.ctx().num_val(b, a.get_sort()); }
     inline expr operator%(int a, expr const & b) { return b.ctx().num_val(a, b.get_sort()) % b; }
+    
+    inline expr bvsmod(expr const & a, expr const & b) {
+        Z3_ast r = Z3_mk_bvsmod(a.ctx(), a, b);
+        return expr(a.ctx(), r);
+    }
+    inline expr bvsmod(expr const & a, int b) { return bvsmod(a, a.ctx().num_val(b, a.get_sort())); }
+    inline expr bvsmod(int a, expr const & b) { return bvsmod(b.ctx().num_val(a, b.get_sort()), b); }
+
+    inline expr bvurem(expr const & a, expr const & b) {
+        Z3_ast r = Z3_mk_bvurem(a.ctx(), a, b);
+        return expr(a.ctx(), r);
+    }
+    inline expr bvurem(expr const & a, int b) { return bvurem(a, a.ctx().num_val(b, a.get_sort())); }
+    inline expr bvurem(int a, expr const & b) { return bvurem(b.ctx().num_val(a, b.get_sort()), b); }
+
 
 
 
