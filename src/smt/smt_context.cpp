@@ -3501,18 +3501,18 @@ namespace smt {
             if (m_last_search_failure != OK)
                 return true;
             
-            if (m_timer.ms_timeout(m_fparams.m_timeout)) {
-                m_last_search_failure = TIMEOUT;
-                return true;
-            }
+            //if (m_timer.ms_timeout(m_fparams.m_timeout)) {
+            //    m_last_search_failure = TIMEOUT;
+            //    return true;
+            //}
 
-            if (m_progress_callback) {
-                m_progress_callback->fast_progress_sample();
-                if (m_fparams.m_progress_sampling_freq > 0 && m_timer.ms_timeout(m_next_progress_sample + 1)) {
-                    m_progress_callback->slow_progress_sample();
-                    m_next_progress_sample = (unsigned)(m_timer.get_seconds() * 1000) + m_fparams.m_progress_sampling_freq;
-                }
-            }
+            //if (m_progress_callback) {
+            //    m_progress_callback->fast_progress_sample();
+            //    if (m_fparams.m_progress_sampling_freq > 0 && m_timer.ms_timeout(m_next_progress_sample + 1)) {
+            //        m_progress_callback->slow_progress_sample();
+            //        m_next_progress_sample = (unsigned)(m_timer.get_seconds() * 1000) + m_fparams.m_progress_sampling_freq;
+            //    }
+            //}
         }
             
         if (get_cancel_flag()) {
