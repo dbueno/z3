@@ -39,6 +39,7 @@ Notes:
 #include"qfaufbv_tactic.h"
 #include"qfbv_tactic.h"
 #include"tactic2solver.h"
+#include"bv_bound_chk_tactic.h"
 ///////////////
 
 class qfufbv_ackr_tactic : public tactic {
@@ -47,6 +48,7 @@ public:
         : m_m(m)
         , m_p(p)
         , m_use_sat(false)
+        , m_inc_use_sat(false)
     {}
 
     virtual ~qfufbv_ackr_tactic() { }
@@ -85,6 +87,7 @@ public:
     void updt_params(params_ref const & _p) {
         qfufbv_tactic_params p(_p);
         m_use_sat = p.sat_backend();
+        m_inc_use_sat = p.inc_sat_backend();
     }
 
     virtual void collect_statistics(statistics & st) const {
@@ -105,12 +108,18 @@ private:
     params_ref                           m_p;
     lackr_stats                          m_st;
     bool                                 m_use_sat;
+    bool                                 m_inc_use_sat;
 
     solver* setup_sat() {
         solver * sat(NULL);
         if (m_use_sat) {
-            tactic_ref t = mk_qfbv_tactic(m_m, m_p);
-            sat = mk_tactic2solver(m_m, t.get(), m_p);
+            if (m_inc_use_sat) {
+                sat = mk_inc_sat_solver(m_m, m_p);
+            }
+            else {
+                tactic_ref t = mk_qfbv_tactic(m_m, m_p);
+                sat = mk_tactic2solver(m_m, t.get(), m_p);
+            }
         }
         else {
             tactic_ref t = mk_qfaufbv_tactic(m_m, m_p);
@@ -141,6 +150,7 @@ static tactic * mk_qfufbv_preamble1(ast_manager & m, params_ref const & p) {
     return and_then(
         mk_simplify_tactic(m),
         mk_propagate_values_tactic(m),
+        if_no_proofs(if_no_unsat_cores(mk_bv_bound_chk_tactic(m))),
         //using_params(mk_ctx_simplify_tactic(m_m), ctx_simp_p),
         mk_solve_eqs_tactic(m),
         mk_elim_uncnstr_tactic(m),

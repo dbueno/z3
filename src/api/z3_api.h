@@ -861,6 +861,9 @@ typedef enum
       - Z3_OP_PB_GE: Generalized Pseudo-Boolean cardinality constraint.
               Example  2*x + 3*y + 2*z >= 4
 
+      - Z3_OP_PB_EQ: Generalized Pseudo-Boolean equality constraint.
+              Example  2*x + 1*y + 2*z + 1*u = 4
+
       - Z3_OP_FPA_RM_NEAREST_TIES_TO_EVEN: Floating-point rounding mode RNE
 
       - Z3_OP_FPA_RM_NEAREST_TIES_TO_AWAY: Floating-point rounding mode RNA
@@ -944,6 +947,8 @@ typedef enum
       - Z3_OP_FPA_TO_REAL: Floating-point conversion to real number
 
       - Z3_OP_FPA_TO_IEEE_BV: Floating-point conversion to IEEE-754 bit-vector
+
+      - Z3_OP_INTERNAL: internal (often interpreted) symbol, but no additional information is exposed. Tools may use the string representation of the function declaration to obtain more information.
 
       - Z3_OP_UNINTERPRETED: kind used for uninterpreted symbols.
 */
@@ -1060,6 +1065,15 @@ typedef enum {
     Z3_OP_CARRY,
     Z3_OP_XOR3,
 
+    Z3_OP_BSMUL_NO_OVFL,
+    Z3_OP_BUMUL_NO_OVFL,
+    Z3_OP_BSMUL_NO_UDFL,
+    Z3_OP_BSDIV_I,
+    Z3_OP_BUDIV_I,
+    Z3_OP_BSREM_I,
+    Z3_OP_BUREM_I,
+    Z3_OP_BSMOD_I,
+
     // Proofs
     Z3_OP_PR_UNDEF = 0x500,
     Z3_OP_PR_TRUE,
@@ -1155,6 +1169,7 @@ typedef enum {
     Z3_OP_PB_AT_MOST=0x900,
     Z3_OP_PB_LE,
     Z3_OP_PB_GE,
+    Z3_OP_PB_EQ,
 
     // Floating-Point Arithmetic
     Z3_OP_FPA_RM_NEAREST_TIES_TO_EVEN,
@@ -1204,6 +1219,11 @@ typedef enum {
     Z3_OP_FPA_TO_REAL,
 
     Z3_OP_FPA_TO_IEEE_BV,
+
+    Z3_OP_FPA_MIN_I,
+    Z3_OP_FPA_MAX_I,
+
+    Z3_OP_INTERNAL,
 
     Z3_OP_UNINTERPRETED
 } Z3_decl_kind;
@@ -1981,9 +2001,9 @@ extern "C" {
        \param c logical context.
        \param constr constructor container. The container must have been passed in to a #Z3_mk_datatype call.
        \param num_fields number of accessor fields in the constructor.
-       \param constructor constructor function declaration.
-       \param tester constructor test function declaration.
-       \param accessors array of accessor function declarations.
+       \param constructor constructor function declaration, allocated by user.
+       \param tester constructor test function declaration, allocated by user.
+       \param accessors array of accessor function declarations allocated by user. The array must contain num_fields elements.
 
        def_API('Z3_query_constructor', VOID, (_in(CONTEXT), _in(CONSTRUCTOR), _in(UINT), _out(FUNC_DECL), _out(FUNC_DECL), _out_array(2, FUNC_DECL)))
     */
@@ -3056,7 +3076,8 @@ extern "C" {
        \brief Create a numeral of a given sort.
 
        \param c logical context.
-       \param numeral A string representing the numeral value in decimal notation. If the given sort is a real, then the numeral can be a rational, that is, a string of the form \ccode{[num]* / [num]*}.
+       \param numeral A string representing the numeral value in decimal notation. The string may be of the form \code{[num]*[.[num]*][E[+|-][num]+]}.
+                      If the given sort is a real, then the numeral can be a rational, that is, a string of the form \ccode{[num]* / [num]*}.                      
        \param ty The sort of the numeral. In the current implementation, the given sort can be an int, real, finite-domain, or bit-vectors of arbitrary size.
 
        \sa Z3_mk_int
@@ -3897,6 +3918,18 @@ extern "C" {
                              int k);
 
     /**
+       \brief Pseudo-Boolean relations.
+
+       Encode k1*p1 + k2*p2 + ... + kn*pn = k
+
+       def_API('Z3_mk_pbeq', AST, (_in(CONTEXT), _in(UINT), _in_array(1,AST), _in_array(1,INT), _in(INT)))
+    */
+
+    Z3_ast Z3_API Z3_mk_pbeq(Z3_context c, unsigned num_args,
+                             Z3_ast const args[], int coeffs[],
+                             int k);
+
+    /**
        \brief Convert a \c Z3_func_decl into \c Z3_ast. This is just type casting.
 
        def_API('Z3_func_decl_to_ast', AST, (_in(CONTEXT), _in(FUNC_DECL)))
@@ -4538,6 +4571,9 @@ extern "C" {
        If \c model_completion is Z3_TRUE, then Z3 will assign an interpretation for any constant or function that does
        not have an interpretation in \c m. These constants and functions were essentially don't cares.
 
+       If \c model_completion is Z3_FALSE, then Z3 will not assign interpretations to constants for functions that do
+       not have interpretations in \c m. Evaluation behaves as the identify function in this case.
+
        The evaluation may fail for the following reasons:
 
        - \c t contains a quantifier.
@@ -4546,6 +4582,8 @@ extern "C" {
        That is, the option \ccode{MODEL_PARTIAL=true} was used.
 
        - \c t is type incorrect.
+
+       - \c Z3_interrupt was invoked during evaluation.
 
        def_API('Z3_model_eval', BOOL, (_in(CONTEXT), _in(MODEL), _in(AST), _in(BOOL), _out(AST)))
     */
@@ -5100,6 +5138,13 @@ extern "C" {
     Z3_string Z3_API Z3_get_error_msg(Z3_context c, Z3_error_code err);
     /*@}*/
 
+    /**
+       \brief Return a string describing the given error code. 
+       Retained function name for backwards compatibility within v4.1
+    */
+    Z3_string Z3_API Z3_get_error_msg_ex(Z3_context c, Z3_error_code err);
+    /*@}*/
+
     /** @name Miscellaneous */
     /*@{*/
 
@@ -5109,6 +5154,13 @@ extern "C" {
        def_API('Z3_get_version', VOID, (_out(UINT), _out(UINT), _out(UINT), _out(UINT)))
     */
     void Z3_API Z3_get_version(unsigned * major, unsigned * minor, unsigned * build_number, unsigned * revision_number);
+
+    /**
+        \brief Return a string that fully describes the version of Z3 in use.
+
+        def_API('Z3_get_full_version', STRING, ())
+    */
+    Z3_string Z3_API Z3_get_full_version(void);
 
     /**
        \brief Enable tracing messages tagged as \c tag when Z3 is compiled in debug mode.
@@ -5796,7 +5848,7 @@ extern "C" {
     void Z3_API Z3_solver_assert_and_track(Z3_context c, Z3_solver s, Z3_ast a, Z3_ast p);
 
     /**
-       \brief Return the set of asserted formulas as a goal object.
+       \brief Return the set of asserted formulas on the solver.
 
        def_API('Z3_solver_get_assertions', AST_VECTOR, (_in(CONTEXT), _in(SOLVER)))
     */
@@ -5858,6 +5910,17 @@ extern "C" {
                                               Z3_ast const terms[],
                                               unsigned class_ids[]);
 
+    /**
+       \brief retrieve consequences from solver that determine values of the supplied function symbols.
+       
+       def_API('Z3_solver_get_consequences', INT, (_in(CONTEXT), _in(SOLVER), _in(AST_VECTOR), _in(AST_VECTOR), _in(AST_VECTOR)))
+     */
+
+    Z3_lbool Z3_API Z3_solver_get_consequences(Z3_context c, 
+                                               Z3_solver s,
+                                               Z3_ast_vector assumptions,
+                                               Z3_ast_vector variables,
+                                               Z3_ast_vector consequences);
     /**
        \brief Retrieve the model for the last #Z3_solver_check or #Z3_solver_check_assumptions
 
