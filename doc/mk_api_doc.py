@@ -82,7 +82,7 @@ try:
     mk_dir('tmp')
     shutil.copyfile('website-adj.dox', 'tmp/website.dox')
     os.remove('website-adj.dox')
-    shutil.copyfile('../src/api/python/z3.py', 'tmp/z3py.py')
+    shutil.copyfile('../src/api/python/z3/z3.py', 'tmp/z3py.py')
     cleanup_API('../src/api/z3_api.h', 'tmp/z3_api.h')
     cleanup_API('../src/api/z3_ast_containers.h', 'tmp/z3_ast_containers.h')
     cleanup_API('../src/api/z3_algebraic.h', 'tmp/z3_algebraic.h')
