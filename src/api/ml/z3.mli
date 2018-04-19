@@ -1825,6 +1825,116 @@ sig
   val mk_numeral : context -> string -> int -> Expr.expr
 end
 
+(** Sequences, Strings and Regular Expressions **)
+module Seq : 
+sig
+  (* create a sequence sort *)
+  val mk_seq_sort : context -> Sort.sort -> Sort.sort
+
+  (* test if sort is a sequence sort *)
+  val is_seq_sort : context -> Sort.sort -> bool
+
+  (* create regular expression sorts over sequences of the argument sort *)   
+  val mk_re_sort : context -> Sort.sort -> Sort.sort
+
+  (* test if sort is a regular expression sort *)
+  val is_re_sort : context -> Sort.sort -> bool
+
+  (* create string sort *)
+  val mk_string_sort : context -> Sort.sort
+
+  (* test if sort is a string sort (a sequence of 8-bit bit-vectors) *)
+  val is_string_sort : context -> Sort.sort -> bool 
+
+  (* create a string literal *)
+  val mk_string : context -> string -> Expr.expr
+
+  (* test if expression is a string *)
+  val is_string : context -> Expr.expr -> bool 
+
+  (* retrieve string from string Expr.expr *)
+  val get_string : context -> Expr.expr -> string 
+
+  (* the empty sequence over base sort *)
+  val mk_seq_empty : context -> Sort.sort -> Expr.expr 
+
+  (* a unit sequence *)
+  val mk_seq_unit : context -> Expr.expr -> Expr.expr 
+
+  (* sequence concatenation *)
+  val mk_seq_concat : context -> Expr.expr list -> Expr.expr 
+
+  (* predicate if the first argument is a prefix of the second *)
+  val mk_seq_prefix : context -> Expr.expr -> Expr.expr -> Expr.expr  
+
+  (* predicate if the first argument is a suffix of the second *)
+  val mk_seq_suffix : context -> Expr.expr -> Expr.expr -> Expr.expr  
+
+  (* predicate if the first argument contains the second *)
+  val mk_seq_contains : context -> Expr.expr -> Expr.expr -> Expr.expr  
+
+  (* extract sub-sequence starting at index given by second argument and of length provided by third argument *)
+  val mk_seq_extract : context -> Expr.expr -> Expr.expr -> Expr.expr -> Expr.expr  
+
+  (* replace first occurrence of second argument by third *)
+  val mk_seq_replace : context -> Expr.expr -> Expr.expr -> Expr.expr -> Expr.expr  
+
+  (* a unit sequence at index provided by second argument *)
+  val mk_seq_at : context -> Expr.expr -> Expr.expr -> Expr.expr 
+
+  (* length of a sequence *)
+  val mk_seq_length : context -> Expr.expr -> Expr.expr  
+
+  (* index of the first occurrence of the second argument in the first *)
+  val mk_seq_index : context -> Expr.expr -> Expr.expr -> Expr.expr -> Expr.expr 
+
+  (* retrieve integer expression encoded in string *)
+  val mk_str_to_int : context -> Expr.expr -> Expr.expr
+
+  (* convert an integer expression to a string *)
+  val mk_int_to_str : context -> Expr.expr -> Expr.expr 
+
+  (* create regular expression that accepts the argument sequence *)
+  val mk_seq_to_re : context -> Expr.expr -> Expr.expr 
+
+  (* regular expression membership predicate *)
+  val mk_seq_in_re : context -> Expr.expr -> Expr.expr -> Expr.expr 
+
+  (* regular expression plus *)
+  val mk_re_plus : context -> Expr.expr -> Expr.expr 
+
+  (* regular expression star *)
+  val mk_re_star : context -> Expr.expr -> Expr.expr 
+
+  (* optional regular expression *)
+  val mk_re_option : context -> Expr.expr -> Expr.expr 
+
+  (* union of regular expressions *)
+  val mk_re_union : context -> Expr.expr list -> Expr.expr 
+
+  (* concatenation of regular expressions *)
+  val mk_re_concat : context -> Expr.expr list -> Expr.expr 
+  
+  (* regular expression for the range between two characters *)
+  val mk_re_range : context -> Expr.expr -> Expr.expr -> Expr.expr 
+
+  (* bounded loop regular expression *)
+  val mk_re_loop : context -> Expr.expr -> int -> int -> Expr.expr 
+  
+  (* intersection of regular expressions *)
+  val mk_re_intersect : context -> int -> Expr.expr list -> Expr.expr
+
+  (* the regular expression complement *)
+  val mk_re_complement : context -> Expr.expr -> Expr.expr 
+
+  (* the regular expression that accepts no sequences *)
+  val mk_re_empty : context -> Sort.sort -> Expr.expr 
+
+  (* the regular expression that accepts all sequences *)
+  val mk_re_full : context -> Sort.sort -> Expr.expr 
+
+end
+
 (** Floating-Point Arithmetic *)
 module FloatingPoint :
 sig
@@ -2141,21 +2251,54 @@ sig
   (** Retrieves the sign of a floating-point literal. *)
   val get_numeral_sign : context -> Expr.expr -> bool * int
 
+  (** Return the sign of a floating-point numeral as a bit-vector expression. 
+      Remark: NaN's do not have a bit-vector sign, so they are invalid arguments. *)
+  val get_numeral_sign_bv : context -> Expr.expr -> Expr.expr
+
+  (** Return the exponent value of a floating-point numeral as a string *)
+  val get_numeral_exponent_string : context -> Expr.expr -> bool -> string
+
+  (** Return the exponent value of a floating-point numeral as a signed integer *)
+  val get_numeral_exponent_int : context -> Expr.expr -> bool -> bool * int
+
+  (** Return the exponent of a floating-point numeral as a bit-vector expression. 
+      Remark: NaN's do not have a bit-vector exponent, so they are invalid arguments. *)
+  val get_numeral_exponent_bv : context -> Expr.expr -> bool -> Expr.expr
+
+  (** Return the significand value of a floating-point numeral as a bit-vector expression. 
+      Remark: NaN's do not have a bit-vector significand, so they are invalid arguments. *)
+  val get_numeral_significand_bv : context -> Expr.expr -> Expr.expr
+
   (** Return the significand value of a floating-point numeral as a string. *)
   val get_numeral_significand_string : context -> Expr.expr -> string
 
   (** Return the significand value of a floating-point numeral as a uint64.
       Remark: This function extracts the significand bits, without the
       hidden bit or normalization. Throws an exception if the
-      significand does not fit into a uint64. *)
+      significand does not fit into an int. *)
   val get_numeral_significand_uint : context -> Expr.expr -> bool * int
 
-  (** Return the exponent value of a floating-point numeral as a string *)
-  val get_numeral_exponent_string : context -> Expr.expr -> string
+  (** Indicates whether a floating-point numeral is a NaN. *)
+  val is_numeral_nan : context -> Expr.expr -> bool
 
-  (** Return the exponent value of a floating-point numeral as a signed integer *)
-  val get_numeral_exponent_int : context -> Expr.expr -> bool * int
+  (** Indicates whether a floating-point numeral is +oo or -oo. *)
+  val is_numeral_inf : context -> Expr.expr -> bool
 
+  (** Indicates whether a floating-point numeral is +zero or -zero. *)
+  val is_numeral_zero : context -> Expr.expr -> bool
+
+  (** Indicates whether a floating-point numeral is normal. *)
+  val is_numeral_normal : context -> Expr.expr -> bool
+
+  (** Indicates whether a floating-point numeral is subnormal. *)
+  val is_numeral_subnormal : context -> Expr.expr -> bool
+
+  (** Indicates whether a floating-point numeral is positive. *)
+  val is_numeral_positive : context -> Expr.expr -> bool
+
+  (** Indicates whether a floating-point numeral is negative. *)
+  val is_numeral_negative : context -> Expr.expr -> bool
+   
   (** Conversion of a floating-point term into a bit-vector term in IEEE 754-2008 format. *)
   val mk_to_ieee_bv : context -> Expr.expr -> Expr.expr
 
@@ -3023,29 +3166,22 @@ sig
   (** Assert a constraint (or multiple) into the solver. *)
   val add : solver -> Expr.expr list -> unit
 
-  (** * Assert multiple constraints (cs) into the solver, and track them (in the
-      * unsat) core
-      * using the Boolean constants in ps.
-      *
-      * This API is an alternative to {!check} with assumptions for
-      * extracting unsat cores.
-      * Both APIs can be used in the same solver. The unsat core will contain a
-      * combination
-      * of the Boolean variables provided using {!assert_and_track}
-      * and the Boolean literals
-      * provided using {!check} with assumptions. *)
+  (** Assert multiple constraints (cs) into the solver, and track them (in the
+      unsat) core using the Boolean constants in ps.
+     
+      This API is an alternative to {!check} with assumptions for extracting unsat cores.
+      Both APIs can be used in the same solver. The unsat core will contain a combination
+      of the Boolean variables provided using {!assert_and_track} and the Boolean literals
+      provided using {!check} with assumptions. *)
   val assert_and_track_l : solver -> Expr.expr list -> Expr.expr list -> unit
 
-  (** * Assert a constraint (c) into the solver, and track it (in the unsat) core
-      * using the Boolean constant p.
-      *
-      * This API is an alternative to {!check} with assumptions for
-      * extracting unsat cores.
-      * Both APIs can be used in the same solver. The unsat core will contain a
-      * combination
-      * of the Boolean variables provided using {!assert_and_track}
-      * and the Boolean literals
-      * provided using {!check} with assumptions. *)
+  (** Assert a constraint (c) into the solver, and track it (in the unsat) core
+      using the Boolean constant p.
+      
+      This API is an alternative to {!check} with assumptions for extracting unsat cores. 
+      Both APIs can be used in the same solver. The unsat core will contain a combination  
+      of the Boolean variables provided using {!assert_and_track} and the Boolean literals 
+      provided using {!check} with assumptions. *)
   val assert_and_track : solver -> Expr.expr -> Expr.expr -> unit
 
   (** The number of assertions in the solver. *)
@@ -3304,43 +3440,6 @@ sig
 
       @return A string representation of the benchmark. *)
   val benchmark_to_smtstring : context -> string -> string -> string -> string -> Expr.expr list -> Expr.expr -> string
-
-  (** Parse the given string using the SMT-LIB parser.
-
-      The symbol table of the parser can be initialized using the given sorts and declarations.
-      The symbols in the arrays in the third and fifth argument
-      don't need to match the names of the sorts and declarations in the arrays in the fourth
-      and sixth argument. This is a useful feature since we can use arbitrary names to
-      reference sorts and declarations. *)
-  val parse_smtlib_string : context -> string -> Symbol.symbol list -> Sort.sort list -> Symbol.symbol list -> FuncDecl.func_decl list -> unit
-
-  (** Parse the given file using the SMT-LIB parser.
-      {!parse_smtlib_string} *)
-  val parse_smtlib_file : context -> string -> Symbol.symbol list -> Sort.sort list -> Symbol.symbol list -> FuncDecl.func_decl list -> unit
-
-  (** The number of SMTLIB formulas parsed by the last call to [ParseSMTLIBString] or [ParseSMTLIBFile]. *)
-  val get_num_smtlib_formulas : context -> int
-
-  (** The formulas parsed by the last call to [ParseSMTLIBString] or [ParseSMTLIBFile]. *)
-  val get_smtlib_formulas : context -> Expr.expr list
-
-  (** The number of SMTLIB assumptions parsed by the last call to [ParseSMTLIBString] or [ParseSMTLIBFile]. *)
-  val get_num_smtlib_assumptions : context -> int
-
-  (** The assumptions parsed by the last call to [ParseSMTLIBString] or [ParseSMTLIBFile]. *)
-  val get_smtlib_assumptions : context -> Expr.expr list
-
-  (** The number of SMTLIB declarations parsed by the last call to [ParseSMTLIBString] or [ParseSMTLIBFile]. *)
-  val get_num_smtlib_decls : context -> int
-
-  (** The declarations parsed by the last call to [ParseSMTLIBString] or [ParseSMTLIBFile]. *)
-  val get_smtlib_decls : context -> FuncDecl.func_decl list
-
-  (** The number of SMTLIB sorts parsed by the last call to [ParseSMTLIBString] or [ParseSMTLIBFile]. *)
-  val get_num_smtlib_sorts : context -> int
-
-  (** The sort declarations parsed by the last call to [ParseSMTLIBString] or [ParseSMTLIBFile]. *)
-  val get_smtlib_sorts : context -> Sort.sort list
 
   (** Parse the given string using the SMT-LIB2 parser.
 

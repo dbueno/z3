@@ -20,22 +20,22 @@ Revision History:
 #ifndef API_CONTEXT_H_
 #define API_CONTEXT_H_
 
-#include"z3.h"
-#include"ast.h"
-#include"api_util.h"
-#include"arith_decl_plugin.h"
-#include"bv_decl_plugin.h"
-#include"seq_decl_plugin.h"
-#include"datatype_decl_plugin.h"
-#include"dl_decl_plugin.h"
-#include"fpa_decl_plugin.h"
-#include"smt_kernel.h"
-#include"smt_params.h"
-#include"event_handler.h"
-#include"tactic_manager.h"
-#include"context_params.h"
-#include"api_polynomial.h"
-#include"hashtable.h"
+#include "api/z3.h"
+#include "ast/ast.h"
+#include "api/api_util.h"
+#include "ast/arith_decl_plugin.h"
+#include "ast/bv_decl_plugin.h"
+#include "ast/seq_decl_plugin.h"
+#include "ast/datatype_decl_plugin.h"
+#include "ast/dl_decl_plugin.h"
+#include "ast/fpa_decl_plugin.h"
+#include "smt/smt_kernel.h"
+#include "smt/params/smt_params.h"
+#include "util/event_handler.h"
+#include "cmd_context/tactic_manager.h"
+#include "cmd_context/context_params.h"
+#include "api/api_polynomial.h"
+#include "util/hashtable.h"
 
 namespace smtlib {
     class parser;
@@ -220,19 +220,11 @@ namespace api {
 
         // ------------------------
         //
-        // Parser interface for backward compatibility 
+        // Parser interface 
         //
         // ------------------------
 
-        // TODO: move to a "parser" object visible to the external world.
-        std::string                m_smtlib_error_buffer;
-        smtlib::parser *           m_smtlib_parser;
-        bool                       m_smtlib_parser_has_decls;
-        ptr_vector<func_decl>      m_smtlib_parser_decls;
-        ptr_vector<sort>           m_smtlib_parser_sorts;
-        
-        void reset_parser();
-        void extract_smtlib_parser_decls();
+        std::string m_parser_error_buffer;        
         
     };
     

@@ -620,8 +620,8 @@ class Formatter:
                 r = []
                 sgn = c_int(0)
                 sgnb = Z3_fpa_get_numeral_sign(a.ctx_ref(), a.ast, byref(sgn))
+                exp = Z3_fpa_get_numeral_exponent_string(a.ctx_ref(), a.ast, False)
                 sig = Z3_fpa_get_numeral_significand_string(a.ctx_ref(), a.ast)
-                exp = Z3_fpa_get_numeral_exponent_string(a.ctx_ref(), a.ast)
                 r.append(to_format('FPVal('))
                 if sgnb and sgn.value != 0:
                     r.append(to_format('-'))
@@ -650,8 +650,8 @@ class Formatter:
                 r = []
                 sgn = (ctypes.c_int)(0)
                 sgnb = Z3_fpa_get_numeral_sign(a.ctx_ref(), a.ast, byref(sgn))
+                exp = Z3_fpa_get_numeral_exponent_string(a.ctx_ref(), a.ast, False)
                 sig = Z3_fpa_get_numeral_significand_string(a.ctx_ref(), a.ast)
-                exp = Z3_fpa_get_numeral_exponent_string(a.ctx_ref(), a.ast)
                 if sgnb and sgn.value != 0:
                     r.append(to_format('-'))
                 r.append(to_format(sig))
@@ -678,7 +678,7 @@ class Formatter:
         if self.fpa_pretty:
             if self.is_infix(k) and n >= 3:            
                 rm = a.arg(0)
-                if z3.is_fprm_value(rm) and z3._dflt_rm(a.ctx).eq(rm):
+                if z3.is_fprm_value(rm) and z3.get_default_rounding_mode(a.ctx).eq(rm):
                     arg1 = to_format(self.pp_expr(a.arg(1), d+1, xs))
                     arg2 = to_format(self.pp_expr(a.arg(2), d+1, xs))
                     r = []
