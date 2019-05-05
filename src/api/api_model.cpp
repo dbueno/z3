@@ -36,6 +36,7 @@ extern "C" {
         RESET_ERROR_CODE();
         Z3_model_ref * m_ref = alloc(Z3_model_ref, *mk_c(c)); 
         m_ref->m_model = alloc(model, mk_c(c)->m());
+        m_ref->m_evaluator = alloc(model_evaluator, *m_ref->m_model.get());
         mk_c(c)->save_object(m_ref);
         RETURN_Z3(of_model(m_ref));
         Z3_CATCH_RETURN(0);
@@ -47,6 +48,9 @@ extern "C" {
         RESET_ERROR_CODE();
         if (m) {
             to_model(m)->inc_ref();
+            if (to_model(m)->m_evaluator) {
+                to_model(m)->m_evaluator->inc_ref();
+            }
         }
         Z3_CATCH;
     }
@@ -56,6 +60,9 @@ extern "C" {
         LOG_Z3_model_dec_ref(c, m);
         RESET_ERROR_CODE();
         if (m) {
+            if (to_model(m)->m_evaluator) {
+                to_model(m)->m_evaluator->dec_ref();
+            }
             to_model(m)->dec_ref();
         }
         Z3_CATCH;
@@ -164,9 +171,10 @@ extern "C" {
         RESET_ERROR_CODE();
         CHECK_NON_NULL(m, Z3_FALSE);
         CHECK_IS_EXPR(t, Z3_FALSE);
-        model * _m = to_model_ref(m);
+        model_evaluator * _m_eval = to_model(m)->m_evaluator.get();
+        _m_eval->set_model_completion(model_completion == Z3_TRUE);
         expr_ref result(mk_c(c)->m());
-        _m->eval(to_expr(t), result, model_completion == Z3_TRUE);
+        (*_m_eval)(to_expr(t), result);
         mk_c(c)->save_ast_trail(result.get());
         *v = of_ast(result.get());
         RETURN_Z3_model_eval Z3_TRUE;

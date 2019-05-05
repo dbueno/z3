@@ -401,6 +401,7 @@ extern "C" {
         }
         Z3_model_ref * m_ref = alloc(Z3_model_ref, *mk_c(c)); 
         m_ref->m_model = _m;
+        m_ref->m_evaluator = alloc(model_evaluator, *_m.get());
         mk_c(c)->save_object(m_ref);
         RETURN_Z3(of_model(m_ref));
         Z3_CATCH_RETURN(0);

@@ -20,9 +20,11 @@ Revision History:
 
 #include "api/api_util.h"
 #include "model/model.h"
+#include "model/model_evaluator.h"
 
 struct Z3_model_ref : public api::object {
     model_ref  m_model;
+    ref<model_evaluator> m_evaluator;
     Z3_model_ref(api::context& c): api::object(c) {}
     virtual ~Z3_model_ref() {}
 };

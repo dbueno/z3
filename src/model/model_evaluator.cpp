@@ -519,7 +519,8 @@ struct model_evaluator::imp : public rewriter_tpl<evaluator_cfg> {
     }
 };
 
-model_evaluator::model_evaluator(model_core & md, params_ref const & p) {
+model_evaluator::model_evaluator(model_core & md, params_ref const & p)
+    : m_ref_count(0) {
     m_imp = alloc(imp, md, p);
 }
 

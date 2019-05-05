@@ -31,6 +31,7 @@ typedef rewriter_exception model_evaluator_exception;
 class model_evaluator {
     struct imp;
     imp *  m_imp;
+    unsigned m_ref_count;
 public:
     model_evaluator(model_core & m, params_ref const & p = params_ref());
     ~model_evaluator();
@@ -50,6 +51,17 @@ public:
     void reset(params_ref const & p = params_ref());
 
     unsigned get_num_steps() const;
+    
+    //
+    // Reference counting
+    //
+    void inc_ref() { ++m_ref_count; }
+    void dec_ref() { 
+        --m_ref_count;
+        if (m_ref_count == 0) {
+            dealloc(this);
+        }
+    }
 };
 
 #endif
