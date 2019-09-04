@@ -141,6 +141,15 @@ lbool dl_interface::query(expr * query)
         m_context->set_unsat();
         return l_false;
     }
+    if (m_ctx.get_params().spacer_dump_transformed_horn().size()) {
+        auto filename = m_ctx.get_params().spacer_dump_transformed_horn();
+        // std::cerr << filename;
+        // get_rules().display() is the internal Prolog-like format printing
+        // m_ctx.get_rules().display(std::cerr);
+        expr* const qs[0] = {};
+        m_ctx.display_smt2(0, qs, std::cout);
+        exit(0);
+    }
 
     query_pred = rules.get_output_predicate();
 
