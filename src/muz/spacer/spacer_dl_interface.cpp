@@ -35,6 +35,8 @@ Revision History:
 #include "ast/scoped_proof.h"
 #include "muz/transforms/dl_transforms.h"
 #include "muz/spacer/spacer_callback.h"
+#include "ast/rewriter/rewriter_def.h"
+#include "ast/rewriter/unhorrible_mess_rewriter.h"
 
 using namespace spacer;
 
@@ -142,6 +144,7 @@ lbool dl_interface::query(expr * query)
         return l_false;
     }
     if (m_ctx.get_params().spacer_dump_transformed_horn().size()) {
+        auto rw = unhorrible_mess_rw(m);
         auto filename = m_ctx.get_params().spacer_dump_transformed_horn();
         // std::cerr << filename;
         // get_rules().display() is the internal Prolog-like format printing
