@@ -24,11 +24,13 @@ Revision History:
 
 #include "ast/ast.h"
 #include "ast/rewriter/rewriter.h"
+#include "ast/bv_decl_plugin.h"
 
 class unhorrible_mess_cfg : public default_rewriter_cfg {
     ast_manager& m;
+    bv_util m_util;
 public:
-    unhorrible_mess_cfg(ast_manager& m) : m(m) {}
+    unhorrible_mess_cfg(ast_manager& m) : m(m), m_util(m) {}
 
     br_status reduce_app(func_decl *f, unsigned num, expr *const *args,
                          expr_ref& result, proof_ref& result_pr);

@@ -34,9 +34,8 @@ Revision History:
 #include "model/model_smt2_pp.h"
 #include "ast/scoped_proof.h"
 #include "muz/transforms/dl_transforms.h"
+#include "muz/transforms/dl_mk_unhorrible_mess.h"
 #include "muz/spacer/spacer_callback.h"
-#include "ast/rewriter/rewriter_def.h"
-#include "ast/rewriter/unhorrible_mess_rewriter.h"
 
 using namespace spacer;
 
@@ -106,6 +105,18 @@ lbool dl_interface::query(expr * query)
 
 
     apply_default_transformation(m_ctx);
+    
+    if (m_ctx.get_params().spacer_dump_transformed_horn().size()) {
+        flet<bool> _enable_bv(m_ctx.bind_vars_enabled(), false);
+        datalog::rule_transformer transf(m_ctx);
+        m_ctx.ensure_closed();
+        transf.reset();
+        transf.register_plugin(alloc(datalog::mk_unhorrible_mess, m_ctx, 35000));
+        m_ctx.transform_rules(transf);
+        expr* const qs[0] = {};
+        m_ctx.display_smt2(0, qs, std::cout);
+        exit(0);
+    }
 
     if (m_ctx.get_params().xform_slice()) {
         datalog::rule_transformer transformer(m_ctx);
@@ -142,16 +153,6 @@ lbool dl_interface::query(expr * query)
     if (rules.get_output_predicates().empty()) {
         m_context->set_unsat();
         return l_false;
-    }
-    if (m_ctx.get_params().spacer_dump_transformed_horn().size()) {
-        auto rw = unhorrible_mess_rw(m);
-        auto filename = m_ctx.get_params().spacer_dump_transformed_horn();
-        // std::cerr << filename;
-        // get_rules().display() is the internal Prolog-like format printing
-        // m_ctx.get_rules().display(std::cerr);
-        expr* const qs[0] = {};
-        m_ctx.display_smt2(0, qs, std::cout);
-        exit(0);
     }
 
     query_pred = rules.get_output_predicate();

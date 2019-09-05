@@ -18,17 +18,27 @@ br_status unhorrible_mess_cfg::reduce_app(
     switch (f->get_decl_kind()) {
     case OP_CONCAT:
         if (num > 2) {
-            std::cerr << "here's something to rewrite!" << std::endl;
+            auto concat_rest = m_util.mk_concat(num-1, args+1);
+            result = m_util.mk_concat(args[0], concat_rest);
+            return BR_REWRITE2;
         }
         break;
 
-    case OP_BSDIV_I:
-    case OP_BUDIV_I:
-    case OP_BSREM_I:
     case OP_BUREM_I:
+        result = m.mk_app(f->get_family_id(), OP_BUREM, args[0], args[1]);
+        return BR_DONE;
+    case OP_BSDIV_I:
+        result = m.mk_app(f->get_family_id(), OP_BSDIV, args[0], args[1]);
+        return BR_DONE;
+    case OP_BUDIV_I:
+        result = m.mk_app(f->get_family_id(), OP_BUDIV, args[0], args[1]);
+        return BR_DONE;
+    case OP_BSREM_I:
+        result = m.mk_app(f->get_family_id(), OP_BSREM, args[0], args[1]);
+        return BR_DONE;
     case OP_BSMOD_I:
-        std::cerr << "here's something else to rewrite!" << std::endl;
-        break;
+        result = m.mk_app(f->get_family_id(), OP_BSMOD, args[0], args[1]);
+        return BR_DONE;
     }
-    return BR_DONE;
+    return BR_FAILED;
 }
