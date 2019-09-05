@@ -178,6 +178,6 @@ def_module_params('fp',
                           ('spacer.gpdr', BOOL, False, 'Use GPDR solving strategy for non-linear CHC'),
                           ('spacer.gpdr.bfs', BOOL, True, 'Use BFS exploration strategy for expanding model search'),
                           ('spacer.use_bg_invs', BOOL, False, 'Enable external background invariants'),
-                          ('spacer.dump_transformed_horn', SYMBOL, '', 'If true, dumps horn somehow'),
+                          ('spacer.dump_transformed_horn', BOOL, False, 'If true, dumps transformed Horn clauses to screen and exits'),
 
                           ))

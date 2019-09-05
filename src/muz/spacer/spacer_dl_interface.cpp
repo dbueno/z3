@@ -106,7 +106,7 @@ lbool dl_interface::query(expr * query)
 
     apply_default_transformation(m_ctx);
     
-    if (m_ctx.get_params().spacer_dump_transformed_horn().size()) {
+    if (m_ctx.get_params().spacer_dump_transformed_horn()) {
         flet<bool> _enable_bv(m_ctx.bind_vars_enabled(), false);
         datalog::rule_transformer transf(m_ctx);
         m_ctx.ensure_closed();
