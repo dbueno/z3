@@ -86,6 +86,8 @@ public:
 
     void add_constraint (expr *c, unsigned lvl) override;
 
+    void build_transition_system(expr* query);
+
 };
 }
 

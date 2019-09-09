@@ -103,9 +103,8 @@ lbool dl_interface::query(expr * query)
           m_ctx.display_rules(tout);
         );
 
-
     apply_default_transformation(m_ctx);
-    
+
     if (m_ctx.get_params().spacer_dump_transformed_horn()) {
         flet<bool> _enable_bv(m_ctx.bind_vars_enabled(), false);
         datalog::rule_transformer transf(m_ctx);
@@ -161,6 +160,7 @@ lbool dl_interface::query(expr * query)
     m_spacer_rules.replace_rules(rules);
     m_spacer_rules.close();
     m_ctx.record_transformed_rules();
+    build_transition_system(query);
     m_ctx.reopen();
     m_ctx.replace_rules(old_rules);
 
@@ -369,4 +369,11 @@ void dl_interface::add_callback(void *state,
 
 void dl_interface::add_constraint (expr *c, unsigned lvl){
     m_context->add_constraint(c, lvl);
+}
+
+void dl_interface::build_transition_system(expr *query) {
+    // where ar ethe rules? -- m_ctx
+    m_ctx.display_rules(std::cout);
+    std::cout << "found " << m_ctx.get_rules().get_num_rules() << " rules\n";
+    abort();
 }
