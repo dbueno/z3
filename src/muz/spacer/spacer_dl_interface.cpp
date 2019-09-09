@@ -36,6 +36,7 @@ Revision History:
 #include "muz/transforms/dl_transforms.h"
 #include "muz/transforms/dl_mk_unhorrible_mess.h"
 #include "muz/spacer/spacer_callback.h"
+#include "muz/spacer/dl2ts_transition_system.h"
 
 using namespace spacer;
 
@@ -372,8 +373,11 @@ void dl_interface::add_constraint (expr *c, unsigned lvl){
 }
 
 void dl_interface::build_transition_system(expr *query) {
-    // where ar ethe rules? -- m_ctx
-    m_ctx.display_rules(std::cout);
-    std::cout << "found " << m_ctx.get_rules().get_num_rules() << " rules\n";
+    datalog::rule_set& rules = m_ctx.get_rules();
+    ast_manager& m = m_ctx.get_manager();
+    std::cout << "found " << rules.get_num_rules() << " rules\n";
+    std::cout << "query " << mk_pp(query, m) << "\n";
+    dl2ts::transition_system xsys(rules, m);
+    // obj_map<func_decl, dl2ts::relation_var_info> rels;
     abort();
 }
