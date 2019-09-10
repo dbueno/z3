@@ -52,6 +52,7 @@ rule_var_info& var_manager::mk_vars(datalog::rule *r) {
         m.mk_const("at-" + decl->get_name().str(), m.mk_bool_sort());
     rule_info.m_rel_var_next = mk_next_var(rule_info.m_rel_var);
 
+    rule_info.m_place_vars.reset();
     for (auto it = sort_counts.begin(), ie = sort_counts.end(); it != ie;
          ++it) {
         for (unsigned i = 0; i < it->get_value(); ++i) {

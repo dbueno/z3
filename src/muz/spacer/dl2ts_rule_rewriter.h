@@ -3,6 +3,7 @@
 
 #include "ast/ast.h"
 #include "ast/rewriter/rewriter.h"
+#include "ast/rewriter/bool_rewriter.h"
 #include "ast/bv_decl_plugin.h"
 #include "ast/array_decl_plugin.h"
 
@@ -21,6 +22,7 @@ namespace dl2ts {
         ast_manager& m;
         var_manager& m_vm;
         bv_util m_bv_util;
+        bool_rewriter m_bool_rw;
         array_util m_array_util;
         bool m_current; // next if false
         // XXX add bool_rewriter so that making n-ary AND is easy
