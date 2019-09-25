@@ -38,6 +38,7 @@ Revision History:
 namespace datalog {
 
     void apply_default_transformation(context& ctx) {
+        return;
         rule_transformer transf(ctx);
         ctx.ensure_closed();
         transf.reset();
