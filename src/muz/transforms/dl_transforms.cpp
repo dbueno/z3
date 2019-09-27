@@ -41,6 +41,7 @@ Revision History:
 namespace datalog {
 
     void apply_default_transformation(context& ctx) {
+        return;
         flet<bool> _enable_bv(ctx.bind_vars_enabled(), false);
 
         rule_transformer transf(ctx);
