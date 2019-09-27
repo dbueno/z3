@@ -19,6 +19,7 @@ Revision History:
 #include<iostream>
 #include<time.h>
 #include<signal.h>
+#include<tuple>
 #include"timeout.h"
 #include"dimacs.h"
 #include"sat_solver.h"

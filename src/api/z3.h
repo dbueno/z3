@@ -29,8 +29,8 @@ Notes:
 #include"z3_rcf.h"
 #include"z3_interp.h"
 
-#undef __in
-#undef __out
+#undef z3__in
+#undef z3__out
 #undef __inout
 #undef __in_z
 #undef __out_z

@@ -523,7 +523,7 @@ extern "C" {
         // [Leo]: using exception handling, we don't need global error handlers anymore
     }
 
-    void Z3_API Z3_set_error(__in Z3_context c, __in Z3_error_code e) {
+    void Z3_API Z3_set_error(z3__in Z3_context c, z3__in Z3_error_code e) {
         SET_ERROR_CODE(e);
     }
 
@@ -575,7 +575,7 @@ extern "C" {
     
 };
 
-ast_manager & Z3_API Z3_get_manager(__in Z3_context c) {
+ast_manager & Z3_API Z3_get_manager(z3__in Z3_context c) {
     return mk_c(c)->m();
 }
 
